@@ -28,7 +28,7 @@ Image alignment is a fundamental task in computer vision. Existing methods predo
 git clone https://github.com/boomluo02/DMAligner.git
 cd DMAligner
 conda env create -f environment.yml
-conda activate torch211
+conda activate DMAligner
 ```
 
 **Requirements**: PyTorch 2.1.1, CUDA 12.1, diffusers 0.30.3, xformers 0.0.23. See [`environment.yml`](environment.yml).
@@ -67,7 +67,7 @@ The **Dynamic Scene Image Alignment (DSIA)** dataset is built with Blender, simu
 
 ```bash
 accelerate launch --num_processes 2 --main_process_port 29501 --num_machines 1 \
-    code/train_fov_trans.py --use_wandb --base_config config/train_align.yaml
+    code/train.py --use_wandb --base_config config/train_align.yaml
 ```
 
 See [`config/train_align.yaml`](config/train_align.yaml) for training configuration.
@@ -79,7 +79,7 @@ DMAligner/
 ├── demo.py                  # Inference demo (batch processing + GIF output)
 ├── environment.yml          # Conda environment
 ├── code/
-│   └── train_fov_trans.py   # Training entry point
+│   └── train.py   # Training entry point
 ├── config/
 │   ├── train_align.yaml     # Training configuration
 │   └── train_config.py      # Config parser
@@ -107,8 +107,7 @@ DMAligner/
   author={Luo, Xinglong and Luo, Ao and Wang, Zhengning and Yang, Yueqi and
           Feng, Chaoyu and Lei, Lei and Zeng, Bing and Liu, Shuaicheng},
   booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year={2026},
-  note={Highlight}
+  year={2026}
 }
 ```
 
