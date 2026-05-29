@@ -41,7 +41,6 @@ data/DAVIS/
 # ========================
 # Demo / test outputs
 # ========================
-results/
 demo_output.png
 demo_output/
 *.jpg_output
@@ -80,3 +79,4 @@ env/
 *.temp
 .cache/
 inputs/
+2602.23022v2.pdf

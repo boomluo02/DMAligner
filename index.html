@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAligner: Enhancing Image Alignment via Diffusion Model Based View Synthesis</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a2e;
+            --accent: #6c5ce7;
+            --accent2: #00b894;
+            --gray: #636e72;
+            --light-bg: #f8f9fa;
+            --border: #e0e0e0;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text); line-height: 1.7; background: var(--bg);
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white; text-align: center; padding: 80px 20px 60px;
+        }
+        header h1 { font-size: 2.4em; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        header .venue {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 20px; border-radius: 20px; font-size: 1.1em; margin: 12px 0 8px;
+        }
+        header .venue .highlight {
+            background: #ffd700; color: #1a1a2e; padding: 2px 8px; border-radius: 4px;
+            font-weight: 700; margin-left: 6px;
+        }
+        header .authors { font-size: 1.15em; margin-top: 20px; opacity: 0.95; }
+        header .affiliations { font-size: 0.9em; opacity: 0.75; margin-top: 8px; }
+        header .links { margin-top: 24px; }
+        header .links a {
+            display: inline-block; padding: 10px 24px; margin: 4px 6px;
+            background: rgba(255,255,255,0.15); color: white; text-decoration: none;
+            border-radius: 8px; font-weight: 600; font-size: 0.95em;
+            transition: background 0.2s, transform 0.2s;
+        }
+        header .links a:hover { background: rgba(255,255,255,0.3); transform: translateY(-1px); }
+
+        /* Sections */
+        section { padding: 60px 0; }
+        section:nth-child(even) { background: var(--light-bg); }
+        h2 { font-size: 1.8em; font-weight: 700; margin-bottom: 24px; color: var(--accent); }
+        h3 { font-size: 1.2em; font-weight: 600; margin: 20px 0 10px; }
+
+        /* Abstract */
+        .abstract { font-size: 1.05em; color: #444; text-align: justify; }
+
+        /* Teaser */
+        .figure { text-align: center; margin: 24px 0; }
+        .figure img { max-width: 100%; border-radius: 12px; box-shadow: var(--shadow); }
+        .figure .caption { margin-top: 10px; font-size: 0.9em; color: var(--gray); }
+
+        /* Two-column comparison */
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+        .comparison img { width: 100%; border-radius: 8px; box-shadow: var(--shadow); }
+
+        /* Results Grid */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .result-card {
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        .result-card:hover { transform: translateY(-2px); }
+        .result-card h4 {
+            background: var(--accent); color: white; padding: 10px 16px; font-size: 1em;
+        }
+        .result-card .row { padding: 8px 16px; }
+        .result-card .row.label { font-size: 0.8em; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 12px; }
+        .result-card img { width: 100%; display: block; max-height: 200px; object-fit: contain; background: #f0f0f0; }
+
+        /* Tables */
+        table {
+            width: 100%; border-collapse: collapse; margin: 20px 0;
+            font-size: 0.9em; box-shadow: var(--shadow); border-radius: 8px; overflow: hidden;
+        }
+        th, td { padding: 10px 14px; text-align: center; }
+        th { background: var(--accent); color: white; font-weight: 600; }
+        tr:nth-child(even) { background: var(--light-bg); }
+        tr:last-child { font-weight: 700; background: #e8f5e9; }
+        .best { color: var(--accent2); font-weight: 700; }
+
+        /* BibTeX */
+        .bibtex {
+            background: #2d3436; color: #dfe6e9; padding: 20px 28px;
+            border-radius: 10px; font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85em; overflow-x: auto; white-space: pre-wrap;
+            margin: 16px 0; line-height: 1.5;
+        }
+
+        /* Footer */
+        footer { text-align: center; padding: 40px 20px; color: var(--gray); font-size: 0.85em; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.6em; }
+            .comparison { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Badge */
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; }
+        .badge-cvpr { background: #6c5ce7; color: white; }
+        .badge-highlight { background: #ffd700; color: #1a1a2e; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div class="venue">
+            <span class="badge badge-cvpr">CVPR 2026</span>
+            <span class="badge badge-highlight">🌟 Highlight</span>
+        </div>
+        <h1>DMAligner</h1>
+        <p style="font-size:1.4em;font-weight:300;margin-bottom:4px;">Enhancing Image Alignment via Diffusion Model Based View Synthesis</p>
+        <div class="authors">
+            Xinglong Luo<sup>1,2</sup> &ensp; Ao Luo<sup>3</sup> &ensp; Zhengning Wang<sup>1†</sup> &ensp;
+            Yueqi Yang<sup>4</sup> &ensp; Chaoyu Feng<sup>4</sup> &ensp; Lei Lei<sup>4</sup> &ensp;
+            Bing Zeng<sup>1</sup> &ensp; Shuaicheng Liu<sup>1†</sup>
+        </div>
+        <div class="affiliations">
+            <sup>1</sup> University of Electronic Science and Technology of China &ensp;
+            <sup>2</sup> Qianyuan Laboratory, Hangzhou &ensp;
+            <sup>3</sup> Southwest Jiaotong University &ensp;
+            <sup>4</sup> Independent Researcher
+        </div>
+        <div class="links">
+            <a href="https://arxiv.org/abs/2602.23022">📄 arXiv</a>
+            <a href="https://github.com/boomluo02/DMAligner">💻 Code</a>
+            <a href="#bibtex">📚 BibTeX</a>
+        </div>
+    </div>
+</header>
+
+<!-- Abstract -->
+<section>
+    <div class="container">
+        <h2>📝 Abstract</h2>
+        <p class="abstract">
+            Image alignment is a fundamental task in computer vision with broad applications. Existing methods
+            predominantly employ optical flow-based image warping. However, this technique is susceptible to common
+            challenges such as occlusions and illumination variations, leading to degraded alignment visual quality
+            and compromised accuracy in downstream tasks. We present <strong>DMAligner</strong>, a diffusion-based
+            framework for image alignment through alignment-oriented view synthesis. DMAligner is crafted to tackle
+            the challenges from a new perspective, employing a generation-based solution that avoids the problems
+            associated with flow-based warping. We propose a <strong>Dynamics-aware Diffusion Training</strong> approach
+            with a Dynamics-aware Mask Producing (DMP) module to adaptively distinguish dynamic foreground regions
+            from static backgrounds. We also develop the <strong>DSIA dataset</strong> with 1,033 scenes and
+            30K+ image pairs tailored for image alignment. Extensive experiments demonstrate superiority on DSIA,
+            Sintel, and DAVIS benchmarks.
+        </p>
+    </div>
+</section>
+
+<!-- Teaser -->
+<section>
+    <div class="container">
+        <h2>🔍 Motivation</h2>
+        <div class="figure">
+            <img src="assets/teaser.png" alt="DMAligner teaser - comparing flow-based warping vs diffusion-based view synthesis">
+            <p class="caption">
+                (a) Conventional image alignment based on optical flow warping results in ghosting artifacts and occlusions.
+                (b) Our <strong>DMAligner</strong> directly generates the complete alignment image via diffusion-based view synthesis.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- DSIA Dataset -->
+<section>
+    <div class="container">
+        <h2>📊 DSIA Dataset</h2>
+        <p>
+            The <strong>Dynamic Scene Image Alignment (DSIA)</strong> dataset is the first large-scale dataset
+            specifically designed for image alignment. Built with Blender, it includes <strong>1,033 indoor and outdoor
+            scenes</strong> with over <strong>30,000 image pairs</strong> at 960×540 resolution.
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;">
+            <div style="text-align:center;background:var(--light-bg);padding:16px;border-radius:8px;">
+                <div style="font-size:2em;font-weight:800;color:var(--accent);">1,033</div>
+                <div style="font-size:0.85em;color:var(--gray);">Scenes</div>
+            </div>
+            <div style="text-align:center;background:var(--light-bg);padding:16px;border-radius:8px;">
+                <div style="font-size:2em;font-weight:800;color:var(--accent);">30K+</div>
+                <div style="font-size:0.85em;color:var(--gray);">Image Pairs</div>
+            </div>
+            <div style="text-align:center;background:var(--light-bg);padding:16px;border-radius:8px;">
+                <div style="font-size:2em;font-weight:800;color:var(--accent);">25</div>
+                <div style="font-size:0.85em;color:var(--gray);">Characters</div>
+            </div>
+            <div style="text-align:center;background:var(--light-bg);padding:16px;border-radius:8px;">
+                <div style="font-size:2em;font-weight:800;color:var(--accent);">100</div>
+                <div style="font-size:0.85em;color:var(--gray);">Objects</div>
+            </div>
+        </div>
+        <div class="figure">
+            <img src="assets/dataset_pipeline.png" alt="DSIA dataset generation pipeline">
+            <p class="caption">Overview of DSIA dataset generation. Characters, objects, and cameras move simultaneously
+            to simulate real-world dynamics.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Method -->
+<section>
+    <div class="container">
+        <h2>⚙️ DMAligner Framework</h2>
+        <div class="figure">
+            <img src="assets/network_pipeline.png" alt="DMAligner network architecture">
+            <p class="caption">
+                Overview of DMAligner. Our framework uses a generative diffusion approach for image alignment.
+                The <strong>Dynamics-aware Mask Producing (DMP)</strong> module provides dynamic information
+                essential for the Dynamics-aware Diffusion Training process.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Results -->
+<section>
+    <div class="container">
+        <h2>🎮 Demo Results</h2>
+        <p>Input image pairs and DMAligner aligned predictions with animated GIF comparisons:</p>
+        <div class="results-grid" id="results"></div>
+    </div>
+</section>
+
+<!-- Experiments -->
+<section>
+    <div class="container">
+        <h2>📈 Experimental Results</h2>
+
+        <h3>Quantitative Comparison on DSIA</h3>
+        <table>
+            <tr><th>Method</th><th>LcLf PSNR</th><th>LcSf PSNR</th><th>ScLf PSNR</th><th>ScSf PSNR</th><th>Avg PSNR</th><th>Avg SSIM</th></tr>
+            <tr><td>PWCNet</td><td>16.53</td><td>16.40</td><td>20.53</td><td>21.01</td><td>18.62</td><td>0.74</td></tr>
+            <tr><td>RAFT</td><td>18.22</td><td>18.34</td><td>22.46</td><td>22.95</td><td>20.49</td><td>0.75</td></tr>
+            <tr><td>FlowFormer++</td><td>21.02</td><td>20.97</td><td>22.84</td><td>23.94</td><td>22.19</td><td>0.77</td></tr>
+            <tr><td>DPFlow</td><td>20.78</td><td>20.50</td><td>23.94</td><td>24.61</td><td>22.46</td><td>0.77</td></tr>
+            <tr><td>COGS</td><td>16.35</td><td>16.84</td><td>17.01</td><td>18.21</td><td>17.10</td><td>0.69</td></tr>
+            <tr><td>GenWarp</td><td>22.62</td><td>23.15</td><td>25.32</td><td>25.84</td><td>24.23</td><td>0.78</td></tr>
+            <tr style="background:#e8f5e9;font-weight:700;"><td>DMAligner (Ours)</td><td class="best">24.91</td><td class="best">26.90</td><td class="best">27.25</td><td class="best">27.64</td><td class="best">26.67</td><td class="best">0.81</td></tr>
+        </table>
+
+        <h3>Cross-Dataset Generalization (LPIPS↓)</h3>
+        <table>
+            <tr><th>Method</th><th>Sintel Clean</th><th>Sintel Final</th><th>DAVIS</th><th>Avg</th></tr>
+            <tr><td>RAFT</td><td>0.245</td><td>0.171</td><td>0.219</td><td>0.212</td></tr>
+            <tr><td>DPFlow</td><td>0.255</td><td>0.178</td><td>0.209</td><td>0.214</td></tr>
+            <tr><td>GenWarp</td><td>0.264</td><td>0.251</td><td>0.234</td><td>0.250</td></tr>
+            <tr style="background:#e8f5e9;font-weight:700;"><td>DMAligner (Ours)</td><td class="best">0.246</td><td class="best">0.186</td><td class="best">0.202</td><td class="best">0.211</td></tr>
+        </table>
+
+        <h3>Ablation Study</h3>
+        <table>
+            <tr><th>Experiment</th><th>Prediction Target</th><th>DMP</th><th>Avg PSNR</th><th>Avg SSIM</th></tr>
+            <tr><td>(a)</td><td>pred ε̂<sub>t</sub></td><td>✗</td><td>24.82</td><td>0.77</td></tr>
+            <tr><td>(b)</td><td>pred x₀</td><td>✗</td><td>25.12</td><td>0.79</td></tr>
+            <tr><td>(c)</td><td>rectified flow</td><td>✓</td><td>25.98</td><td>0.80</td></tr>
+            <tr><td>(d)</td><td>v-prediction</td><td>✓</td><td>26.16</td><td>0.81</td></tr>
+            <tr style="background:#e8f5e9;font-weight:700;"><td>(e)</td><td>pred x₀</td><td>✓</td><td class="best">26.67</td><td class="best">0.81</td></tr>
+        </table>
+    </div>
+</section>
+
+<!-- BibTeX -->
+<section id="bibtex">
+    <div class="container">
+        <h2>📚 Citation</h2>
+        <div class="bibtex">@inproceedings{luo2026dmaligner,
+    title={DMAligner: Enhancing Image Alignment via
+           Diffusion Model Based View Synthesis},
+    author={Luo, Xinglong and Luo, Ao and Wang, Zhengning
+            and Yang, Yueqi and Feng, Chaoyu and Lei, Lei
+            and Zeng, Bing and Liu, Shuaicheng},
+    booktitle={Proceedings of the IEEE/CVF Conference on
+               Computer Vision and Pattern Recognition (CVPR)},
+    year={2026},
+    note={Highlight}
+}</div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>© 2026 DMAligner | Template inspired by academic project pages</p>
+    </div>
+</footer>
+
+<script>
+// Auto-populate demo results
+const pairs = ['pair1','pair2','pair3','pair4','pair5'];
+const grid = document.getElementById('results');
+pairs.forEach(p => {
+    const base = `results/${p}`;
+    grid.innerHTML += `
+    <div class="result-card">
+        <h4>${p}</h4>
+        <div class="row label">Input Image 1</div>
+        <img src="${base}/input_img1.png" alt="${p} input 1" loading="lazy">
+        <div class="row label">Input Image 2</div>
+        <img src="${base}/input_img2.png" alt="${p} input 2" loading="lazy">
+        <div class="row label">DMAligner Prediction</div>
+        <img src="${base}/pred.png" alt="${p} pred" loading="lazy">
+        <div style="display:flex;gap:8px;padding:8px 16px 12px;">
+            <a href="${base}/compare_img1.gif" target="_blank" style="font-size:0.85em;">GIF: img1↔pred</a>
+            <a href="${base}/compare_img2.gif" target="_blank" style="font-size:0.85em;">GIF: img2↔pred</a>
+            <a href="${base}/input_overlay.gif" target="_blank" style="font-size:0.85em;">GIF: img1↔img2</a>
+        </div>
+    </div>`;
+});
+</script>
+
+</body>
+</html>
