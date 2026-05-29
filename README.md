@@ -10,7 +10,6 @@ Xinglong Luo<sup>1</sup>, Ao Luo<sup>2</sup>, Zhengning Wang<sup>1†</sup>, Yue
 
 [![arXiv](https://img.shields.io/badge/arXiv-2602.23022-b31b1b.svg)](https://arxiv.org/abs/2602.23022)
 [![CVPR 2026](https://img.shields.io/badge/CVPR-2026-Highlight)]()
-[![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://boomluo02.github.io/DMAligner/)
 [![Project Page](https://img.shields.io/badge/🌐-Project%20Page-blue)](https://boomluo02.github.io/DMAligner/)
 
 </div>
