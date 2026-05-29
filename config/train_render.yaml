@@ -1,0 +1,129 @@
+env:
+  run_id: 0
+  base_config: config/train_render.yaml
+  debug: False
+  mode: train # 'train'/'test'
+  task: bcd # 'bcd' / 'bcd-inpainting'
+  log_dir: output_render # modify in file
+  output_dir: checkpoints # modify in file
+  seed: 42 # None for random seed
+  local_rank: -1 # For distributed training: local_rank
+  data: render_data # 'bcd_data' or 'render_data'
+  decoupled_attn: False # Use decoupled attention for BCD task
+
+huggingface:
+  push_to_hub: False
+  hub_model_id: None
+  hub_token: ""
+
+tracker:
+  report_to : 'none' # 'wandb'/'none'
+  # Tensorboard
+  logging_dir: "logs" # [TensorBoard](https://www.tensorflow.org/tensorboard) log directory. Will default to *output_dir/runs/**CURRENT_DATETIME_HOSTNAME***.
+  # Wandb
+  wandb_entity: megvii_WideAngle # modify in file
+  project: BCD_render # modify in file
+
+model:
+  pretrained_model_name_or_path: "output_render/train/train-20241119192442/checkpoints/final_model"
+  load_addition_from_pretrained: True
+  load_4xVAE_from_bin_file: False
+  clip_name_or_path: 'models/CLIP-ViT-H-14-laion2B-s32B-b79K' # Only for decoupled attention
+  revision: None
+  variant: None
+  cache_dir: None # The directory where the downloaded models and datasets will be stored.
+  resume_from_checkpoint: None # Whether training should be resumed from a previous checkpoint. Use a path saved by 'checkpointing_steps', or `"latest"` to automatically select the last available checkpoint, None for no resuming.
+  prediction_type: 'sample' # 'epsilon' / 'v_prediction' / 'sample'/ 'none' means the default prediction type of the scheduler: `noise_scheduler.config.prediction_type` is chosen.
+  max_grad_norm: 1.0 # -1 means no clipping, float value means clipping
+
+train:
+  enable_lora: False # Enable LoRA training
+  enable_vae_decoder: False # Enable VAE decoder training
+  enable_refine_net: True # Enable Refine Net training
+  freeze_mid_unet: True # Freeze the middle layers of the U-Net
+  beta_schedule: linear # 'linear', 'scaled_linear' or 'squaredcos_cap_v2'
+  batch_size: 1
+  epochs: 50
+  image_embed_dropout: 0.00
+  max_train_steps: None # Total number of training steps to perform. If provided, overrides num_train_epochs.
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: False # Enable gradient checkpointing to save memory
+  input_perturbation: 0 # The scale of input perturbation. Recommended 0.1.
+  snr_gamma: None # SNR weighting gamma to be used if rebalancing the loss. Recommended value is 5.0.
+  dream_training: False # Enable dream training, See: https://arxiv.org/abs/2312.00210  
+  dream_detail_preservation: 1.0 # Dream detail preservation factor p (should be greater than 0; default=1.0, as suggested in the paper)
+  use_8bit_adam: True # Use 8-bit Adam for lower memory usage or to fine-tune the model in 16GB GPUs
+  allow_tf32: True # Enable TF32 for faster training on Ampere GPUs
+  mixed_precision: 'no' # 'no'/'fp16'/'bf16'
+  checkpointing_steps: 10000 # Save a checkpoint every X steps, These checkpoints are only suitable for resuming training using `--resume_from_checkpoint`.
+  checkpoints_total_limit: 3 # Max number of checkpoints to store.
+  enable_xformers_memory_efficient_attention: True
+  noise_offset: 0 # The scale of noise offset.
+  validation_epochs: 3 # Run validation every X epochs.
+  val_sample_steps: 30 # for ddim 30 step is enough. for DDPM recommend 200 steps  
+  val_save_output: True 
+  val_save_dir: ''
+
+lora:
+  lora_rank: 8 # The dimension of the LoRA update matrices.
+  lora_alpha: 16 # The alpha constant of the LoRA update matrices.
+  lora_dropout: 0.1 # The dropout rate of the LoRA update matrices.
+  lora_bias: 'none' # The bias type of the Lora update matrices. Must be 'none', 'all' or 'lora_only'.
+
+loss:
+  use_recon_loss: False
+  use_adaptive_recon_loss: False
+  use_texture_loss: False
+  use_fidelity_loss: False
+  use_struct_loss: False
+  use_sobel_loss: False
+  mse_loss_weight: 1.0
+  refine_loss_weight: 1.0
+  recon_loss_weight: 10.0
+  adaptive_recon_loss_weight: 1.0
+  texture_loss_weight: 1.0
+  fidelity_loss_weight: 1.0
+  struct_loss_weight: 10.0
+  sobel_loss_weight: 1.0
+  adaptive_recon_loss: False
+  struct_step: 15000 # The step to switch from structural loss to fidelity loss
+  
+optim:
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_weight_decay: 1.e-2
+  adam_epsilon: 1.e-8
+
+lr:
+  unet_learning_rate: 5.e-5
+  text_encoder_learning_rate: 4.e-5
+  attn_learning_rate: 1.e-4
+  refine_net_learning_rate: 1.e-4
+  scale_lr: False
+  lr_scheduler: 'constant' # 'linear'/'cosine'/'cosine_with_restarts'/ 'polynomial'/'constant'/ 'constant_with_warmup'/'piecewise_constant'
+  lr_warmup_steps: 500 # number of steps for lr warmup
+  lr_num_cycles: 1 # number of cycles for cosine_with_restarts
+  lr_power: 1.0 # power factor for polynomial lr scheduler
+  # step_rules: '1:3000,0.1' # for 8xVAE exp-d lr=1e-5 / for 4xVAE exp-f lr=1e-4 step rules = '1:3000,0.1:20000,0.01'
+  step_rules: '1:3000,0.1:20000,0.01' # learning rate step for each GPU not all.
+  # step_rules: '1:15,0.1:30,0.01' # learning rate step for each GPU not all.
+
+transform:
+  resize: True
+  change_color: False
+  random_flip: False
+  random_crop: False
+  center_crop: False
+  crop_size_w: 512
+  crop_size_h: 384
+
+
+data: 
+  DATA_ROOT: 'data'
+  num_workers: 2
+  img_size_w: 512
+  img_size_h: 384
+  infer_w: 512
+  infer_h: 384
+  infer_dir: 'data/inference_data'
+  random_mask: False

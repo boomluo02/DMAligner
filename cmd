@@ -1,0 +1,1 @@
+accelerate launch --num_processes 2 --main_process_port 29501 --num_machines 1 code/train_fov_trans.py --use_wandb --base_config config/train_align.yaml

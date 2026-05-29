@@ -1,0 +1,48 @@
+env:
+  run_id: 0
+  base_config: config/test_vae.yaml
+  debug: False
+  mode: test # 'train'/'test'
+  task: bcd # 'bcd' / 'bcd-inpainting'
+  log_dir: output_VAE # modify in file
+  output_dir: checkpoints # modify in file
+  seed: 42 # None for random seed
+  local_rank: -1 # For distributed training: local_rank
+  data: bcd_data # modify in file 'bcd_data' or 'render_data'
+  test_save_dir: "" 
+
+huggingface:
+  push_to_hub: False
+  hub_model_id: None
+  hub_token: ""
+
+tracker:
+  report_to : 'none' # 'wandb'/'none'
+  # Tensorboard
+  logging_dir: "logs" # [TensorBoard](https://www.tensorflow.org/tensorboard) log directory. Will default to *output_dir/runs/**CURRENT_DATETIME_HOSTNAME***.
+  # Wandb
+  wandb_entity: megvii_WideAngle # modify in file
+  project: BCD_VAE # modify in file
+
+model:
+  pretrained_model_name_or_path: 'models/sd2/vae'
+  clip_name_or_path: None
+  
+transform:
+  resize: True
+  change_color: False
+  random_flip: False
+  random_crop: False
+  center_crop: False
+  crop_size_w: 512
+  crop_size_h: 384
+
+data: 
+  DATA_ROOT: 'data'
+  num_workers: 2
+  img_size_w: 512
+  img_size_h: 384
+  infer_w: 512
+  infer_h: 384
+  infer_dir: 'data/inference_data'
+  random_mask: False

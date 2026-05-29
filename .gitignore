@@ -1,0 +1,89 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ========================
+# Model checkpoints & pretrained weights
+# (Share via HuggingFace Hub / Google Drive instead)
+# ========================
+checkpoints/
+output/
+output_DAVIS_jpg/
+output_DSIA_test_selected/
+models/checkpoints/
+models/ensemble_lora/
+models/*.pth
+models/*.pth.tar
+models/*.safetensors
+models/*.zip
+models/*.bin
+lpipsPyTorch/checkpoints/
+
+# ========================
+# Training artifacts
+# ========================
+wandb/
+logs/
+lightning_logs/
+*.log
+
+# ========================
+# Datasets (do NOT commit raw data)
+# ========================
+data/DSIA/
+data/DAVIS_makeup/
+data/DAVIS/
+
+# ========================
+# Demo / test outputs
+# ========================
+demo_output.png
+demo_output/
+*.jpg_output
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========================
+# Environment
+# ========================
+.venv/
+venv/
+env/
+*.conda
+.env
+.conda/
+
+# ========================
+# Jupyter
+# ========================
+.ipynb_checkpoints/
+*.ipynb
+
+# ========================
+# External dependencies / submodules
+# (Clone these separately; see README for instructions)
+# ========================
+submodules/
+
+# ========================
+# Misc
+# ========================
+*.tmp
+*.temp
+.cache/
