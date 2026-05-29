@@ -14,9 +14,6 @@ build/
 # (Share via HuggingFace Hub / Google Drive instead)
 # ========================
 checkpoints/
-output/
-output_DAVIS_jpg/
-output_DSIA_test_selected/
 models/checkpoints/
 models/ensemble_lora/
 models/*.pth
@@ -44,6 +41,7 @@ data/DAVIS/
 # ========================
 # Demo / test outputs
 # ========================
+results/
 demo_output.png
 demo_output/
 *.jpg_output
@@ -76,14 +74,9 @@ env/
 *.ipynb
 
 # ========================
-# External dependencies / submodules
-# (Clone these separately; see README for instructions)
-# ========================
-submodules/
-
-# ========================
 # Misc
 # ========================
 *.tmp
 *.temp
 .cache/
+inputs/

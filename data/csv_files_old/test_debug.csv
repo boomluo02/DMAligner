@@ -1,4 +1,0 @@
-img1,img2,gt,mask
-data/DSIA/test/SS_00091_3_0004/img1.png,data/DSIA/test/SS_00091_3_0004/img2.png,data/DSIA/test/SS_00091_3_0004/img1_warp_gt.png,data/DSIA/test/SS_00091_3_0004/input_mask.png
-data/DSIA/test/SS_00035_2_0003/img1.png,data/DSIA/test/SS_00035_2_0003/img2.png,data/DSIA/test/SS_00035_2_0003/img1_warp_gt.png,data/DSIA/test/SS_00035_2_0003/input_mask.png
-data/DSIA/test/SS_00011_2_0004/img1.png,data/DSIA/test/SS_00011_2_0004/img2.png,data/DSIA/test/SS_00011_2_0004/img1_warp_gt.png,data/DSIA/test/SS_00011_2_0004/input_mask.png
